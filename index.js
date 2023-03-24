@@ -120,11 +120,14 @@ if (require.main === module) {
   }
 }
 
-module.exports = (file, useAsVars) => {
+function generateColors(file, useAsVars) {
   const vars = getVariables(file);
   const colors = getTailwindColors(vars, useAsVars);
   return colors;
-};
+}
+
+module.exports = generateColors;
 
 module.exports.getTailwindColors = getTailwindColors;
 module.exports.getVariables = getVariables;
+module.exports.generateColors = generateColors;
