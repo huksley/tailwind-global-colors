@@ -1,0 +1,17 @@
+{
+  "name": "tailwind-global-colors",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": "https//github.com/huksley/tailwind-global-colors.git",
+  "keywords": [],
+  "homepage": "https//github.com/huksley/tailwind-global-colors",
+  "private": false,
+  "scripts": {},
+  "author": "Ruslan Gainutdinov",
+  "license": "MIT",
+  "dependencies": {
+    "postcss": "^8.4.21",
+    "sass": "^1.60.0"
+  }
+}
