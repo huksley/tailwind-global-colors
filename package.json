@@ -1,10 +1,11 @@
 {
   "name": "tailwind-global-colors",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "repository": "https://github.com/huksley/tailwind-global-colors.git",
   "keywords": [],
+  "types": "index.d.ts",
   "homepage": "https://github.com/huksley/tailwind-global-colors",
   "private": false,
   "scripts": {},

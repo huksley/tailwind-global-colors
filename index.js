@@ -1,6 +1,7 @@
 const sass = require("sass");
 const postcss = require("postcss");
 const paths = require("path");
+const fs = require("fs");
 
 /**
  * Parses :root { --var: value ... } into JSON to be required in styled components.
@@ -52,10 +53,17 @@ const generateVariables = (css) => {
   return variables;
 };
 
-const pathToFileURL = (path) => {
-  const resolvedPath = paths.resolve(path);
-  const pathName = resolvedPath.replace(/\\/g, "/");
-  const url = new URL(pathName, "file:///");
+const resolveNodeModules = (path, srcFile) => {
+  let resolvedPath = paths.resolve(srcFile ? paths.dirname(srcFile) : ".", path);
+  while (!fs.existsSync(resolvedPath)) {
+    const parent = paths.dirname(paths.dirname(resolvedPath));
+    if (parent === resolvedPath || parent === "/") {
+      throw new Error("Cannot find node_modules folder");
+    }
+    resolvedPath = parent + "/node_modules";
+  }
+  const url = new URL(resolvedPath, "file:///");
+  //console.info("Resolved", url);
   return url;
 };
 
@@ -66,7 +74,8 @@ const getVariables = (file) => {
       {
         findFileUrl: (url) => {
           if (!url.startsWith("~")) return null;
-          const finalUrl = new URL("node_modules/" + url.substring(1), pathToFileURL("node_modules"));
+          const finalUrl = new URL("node_modules/" + url.substring(1), resolveNodeModules("node_modules", file));
+          // console.info("Resolved import", url, "to", finalUrl);
           return finalUrl;
         },
       },
@@ -76,12 +85,12 @@ const getVariables = (file) => {
   return vars;
 };
 
-const getTailwindColors = (variables) => {
+const getTailwindColors = (variables, useAsVars) => {
   const colors = Object.fromEntries(
     Object.keys(variables)
       .map((key) => [key, variables[key]])
       .filter((entry) => entry[0].startsWith("--") && entry[1].startsWith("#"))
-      .map((entry) => [entry[0].substring(2), entry[1]])
+      .map((entry) => [entry[0].substring(2), useAsVars ? "var(" + entry[0] + ")" : entry[1]])
   );
 
   // If all colors start with color-, change name to remove color- prefix
@@ -104,16 +113,16 @@ if (require.main === module) {
   const file = args[0];
   if (file) {
     const vars = getVariables(file);
-    const colors = getTailwindColors(vars);
+    const colors = getTailwindColors(vars, args[1] === "1");
     console.info("colors", colors);
   } else {
     console.error("Please provide a SCSS/CSS file path as argument.");
   }
 }
 
-module.exports = (file) => {
+module.exports = (file, useAsVars) => {
   const vars = getVariables(file);
-  const colors = getTailwindColors(vars);
+  const colors = getTailwindColors(vars, useAsVars);
   return colors;
 };
 
